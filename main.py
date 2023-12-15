@@ -4,13 +4,14 @@ import sys
 import win32com.client
 import win32ui
 
+# Ścieżki należy dostosować do urządzenia. Unikać 'relative path' bo to powoduje problemy z VBA.
+LOGO_NANOTECH_PATH = r"C:\Development\Python\naklejki_pcb\assets\nanotech_logo.png"
+GENERATED_STICKERS_PATH = r"C:\Development\Python\naklejki_pcb\wygenerowane_naklejki"
+FONT_PATH = r"C:\Development\Python\naklejki_pcb\Fonts\Ubuntu-Medium.ttf"
+PCB_NAME_FILE_PATH = r"C:\Development\Python\naklejki_pcb\pcb_name.txt"
 
-LOGO_NANOTECH_PATH = r"assets\nanotech_logo.png"
-GENERATED_STICKERS_PATH = r"wygenerowane_naklejki"
-FONT_PATH = r"Fonts\Ubuntu-Medium.ttf"
-
-number = 1
-
+# Nazwa drukarki
+PRINTER_NAME = "Godex DT2x"
 
 def clean_pcb_name(text):
     """ Funkcja używająca wyrażenia regularnego do znalezienia i usunięcia treści w nawiasach { } """
@@ -55,7 +56,6 @@ def generate_sticker(pcb_name:str, qty:str):
         font_size -= 1
         pcb_name_font = ImageFont.truetype(font=FONT_PATH, size=font_size)
         text_lenght = pencil.textlength(text=pcb_name, font=pcb_name_font)
-        print(f"Zmniejszam czcionkę do: {font_size}")
 
     # Oblicz koordynaty dla nazwy PCB
     pcb_name_coords = ((sticker_width - text_lenght) // 2, 130)
@@ -63,13 +63,14 @@ def generate_sticker(pcb_name:str, qty:str):
     # Dodaj napis z nazwą PCB
     pencil.text(pcb_name_coords, pcb_name, font=pcb_name_font, fill=(0, 0, 0, 255))
 
-    # Dodaj napis 'Ilość:'
+    # Dodaj napis 'Ilość: {qty}'
     qty_text = f"Ilość:  {qty}"
     qty_name_font = ImageFont.truetype(font=FONT_PATH, size=18)
     qty_text_lenght = pencil.textlength(text=qty_text, font=qty_name_font)
     pencil.text(((sticker_width - qty_text_lenght) // 2, 200) , qty_text, font=qty_name_font, fill=(0, 0, 0, 255))
     
-    sticker_path = sticker.save(f"{GENERATED_STICKERS_PATH}\\the_sticker{number}.png")
+    sticker_path = f"{GENERATED_STICKERS_PATH}\\the_sticker.png"
+    sticker.save(f"{sticker_path}")
     sticker.show(f"{sticker_path}")
 
     return sticker_path
@@ -104,30 +105,21 @@ def print_sticker(sticker_path, printer_name):
     hDC.DeleteDC()
 
 
-def get_data_from_excel():
-    """ Funkcja przyjmująca dane z excela i zwracająca 'nazwę pcb' """
+def get_data_from_file():
+    """ Funkcja pobierająca dane z pliku .txt i zwracająca 'nazwę pcb' """
 
-    excel = win32com.client.Dispatch("Excel.Application")
-    excel.Visible = 1
-
-    # Odczytaj ścieżkę do pliku tymczasowego z argumentów linii poleceń
-    temp_file_path = sys.argv[1]
-
-    # Odczytaj wartość z pliku tymczasowego
-    with open(temp_file_path, 'r') as file:
-        pcb_name = file.read()
+    with open(PCB_NAME_FILE_PATH, 'r') as file:
+        pcb_name = file.readline()
         
     return pcb_name
 
-
 # Główna pętla programu
-pcb_name = get_data_from_excel()
-print(f"Drukowanie naklejek dla PCB: '{pcb_name}'\n")
+pcb_name = get_data_from_file()
+print(f"Drukowanie naklejek dla PCB: '{pcb_name}'")
 qty = input("Podaj ilości dla każdej naklejki oddzielone spacjami np. '25 25 25 15 50 40'\n")
 for _ in qty.split():
-    sticker_path = generate_sticker(pcb_name=pcb_name, qty=qty)
-    print_sticker(sticker_path=sticker_path, printer_name="Godex DT2x")
-
+    sticker_path = generate_sticker(pcb_name=pcb_name, qty=_)
+    print_sticker(sticker_path=sticker_path, printer_name=PRINTER_NAME)
 
 
 # generate_sticker(clean_pcb_name("MTV.048.647556 {Mati znowu będzie się tłumaczył klientowi}"), "525")
