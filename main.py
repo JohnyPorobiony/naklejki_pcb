@@ -1,6 +1,5 @@
 from PIL import Image, ImageWin, ImageDraw, ImageFont
 import re
-import sys
 import win32com.client
 import win32ui
 
@@ -118,7 +117,7 @@ pcb_name = get_data_from_file()
 print(f"Drukowanie naklejek dla PCB: '{pcb_name}'")
 qty = input("Podaj ilości dla każdej naklejki oddzielone spacjami np. '25 25 25 15 50 40'\n")
 for _ in qty.split():
-    sticker_path = generate_sticker(pcb_name=pcb_name, qty=_)
+    sticker_path = generate_sticker(pcb_name=clean_pcb_name(pcb_name), qty=_)
     print_sticker(sticker_path=sticker_path, printer_name=PRINTER_NAME)
 
 
