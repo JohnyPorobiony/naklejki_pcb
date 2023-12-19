@@ -1,1 +1,2 @@
-FGB.113.14_rev3 {Komentarz z dupy}
+BSH005_0301_v002 {ZZ-70/10/2023} {zapytać u Mateusza przed wysłaniem do klienta}
+4991
