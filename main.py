@@ -5,7 +5,7 @@ import win32ui
 from datetime import datetime
 
 # Ścieżki należy dostosować do urządzenia. Unikać 'relative path' bo to powoduje problemy z VBA.
-LOGO_NANOTECH_PATH = r"C:\Development\Python\naklejki_pcb\assets\nanotech_logo.png"
+LOGO_NANOTECH_PATH = r"C:\Development\Python\naklejki_pcb\assets\logo_nanotech_chrome.png"
 GENERATED_STICKERS_PATH = r"C:\Development\Python\naklejki_pcb\wygenerowane_naklejki"
 FONT_PATH = r"C:\Development\Python\naklejki_pcb\Fonts\Ubuntu-Medium.ttf"
 PCB_NAME_FILE_PATH = r"C:\Development\Python\naklejki_pcb\pcb_name.txt"
