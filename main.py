@@ -2,6 +2,7 @@ from PIL import Image, ImageWin, ImageDraw, ImageFont
 import re
 import win32com.client
 import win32ui
+from datetime import datetime
 
 # Ścieżki należy dostosować do urządzenia. Unikać 'relative path' bo to powoduje problemy z VBA.
 LOGO_NANOTECH_PATH = r"C:\Development\Python\naklejki_pcb\assets\nanotech_logo.png"
@@ -15,6 +16,11 @@ PRINTER_NAME = "Godex DT2x"
 def clean_pcb_name(text):
     """ Funkcja używająca wyrażenia regularnego do znalezienia i usunięcia treści w nawiasach { } """
     cleaned_text = re.sub(r'\{.*?\}', '', text)
+    return cleaned_text
+
+def clean_order_num(text):
+    """ Funkcja używająca wyrażenia regularnego do wyodrebnienia pierwszych 4 znakow """
+    cleaned_text = text[0:4]
     return cleaned_text
 
 def generate_sticker(pcb_name:str, order_num:str, qty:str):
@@ -46,8 +52,8 @@ def generate_sticker(pcb_name:str, order_num:str, qty:str):
     # Załaduj czcionki
     pcb_name_font_size = 30
     pcb_name_font = ImageFont.truetype(font=FONT_PATH, size=pcb_name_font_size)
-    qty_font = ImageFont.truetype(font=FONT_PATH, size=20)
-    order_num_font = ImageFont.truetype(font=FONT_PATH, size=18)
+    qty_font = ImageFont.truetype(font=FONT_PATH, size=25)
+    order_num_font = ImageFont.truetype(font=FONT_PATH, size=21)
     
     # Oblicz długość linijki z tekstem
     text_lenght = pencil.textlength(text=pcb_name, font=pcb_name_font)
@@ -60,24 +66,24 @@ def generate_sticker(pcb_name:str, order_num:str, qty:str):
 
     # Dodaj napis z nazwą PCB
     print(f"Dodaję nazwę PCB w rozmiarze czcionki {pcb_name_font_size}")
-    pcb_name_coords = ((sticker_width - text_lenght) // 2, 110)
+    pcb_name_coords = ((sticker_width - text_lenght) // 2, 100)
     pencil.text(pcb_name_coords, pcb_name, font=pcb_name_font, fill=(0, 0, 0, 255))
 
     # Dodaj napis 'Ilość: {qty}'
     qty_text = f"{qty} szt."
     qty_text_lenght = pencil.textlength(text=qty_text, font=qty_font)
-    qty_coords = ((sticker_width - qty_text_lenght) // 2, 175)
+    qty_coords = ((sticker_width - qty_text_lenght) // 2, 155)
     pencil.text(qty_coords , qty_text, font=qty_font, fill=(0, 0, 0, 255))
 
     # Dodaj napis z Order Number
-    order_num_text = f"# {order_num}"
+    order_num_text = f"# {order_num}   /   {datetime.now().date()}"
     order_num_text_lenght = pencil.textlength(text=order_num_text, font=order_num_font)
-    order_num_coords = ((sticker_width - order_num_text_lenght) // 2, 220)
+    order_num_coords = ((sticker_width - order_num_text_lenght) // 2, 200)
     pencil.text(order_num_coords, order_num_text, font=order_num_font, fill=(0, 0, 0, 255))
     
     sticker_path = f"{GENERATED_STICKERS_PATH}\\the_sticker.png"
     sticker.save(f"{sticker_path}")
-    sticker.show(f"{sticker_path}")
+    #sticker.show(f"{sticker_path}")
 
     return sticker_path
 
@@ -122,12 +128,13 @@ def get_data_from_file():
     return pcb_name, order_num
 
 # Główna pętla programu
-# pcb_name, order_num = get_data_from_file()
-# print(f"Drukowanie naklejek dla PCB: '{pcb_name}'")
-# qty = input("Podaj ilości dla każdej naklejki oddzielone spacjami np. '25 25 25 15 50 40'\n")
-# for _ in qty.split():
-#     sticker_path = generate_sticker(pcb_name=clean_pcb_name(pcb_name), order_num=order_num, qty=_)
-#     print_sticker(sticker_path=sticker_path, printer_name=PRINTER_NAME)
+pcb_name, order_num = get_data_from_file()
+print(f"Drukowanie naklejek dla PCB: '{pcb_name}'")
+qty = input("Podaj ilości dla każdej naklejki oddzielone spacjami np. '25 25 25 15 50 40'\n")
+for _ in qty.split():
+    sticker_path = generate_sticker(pcb_name=clean_pcb_name(pcb_name), order_num=clean_order_num(order_num), qty=_)
+    print_sticker(sticker_path=sticker_path, printer_name=PRINTER_NAME)
 
 
-generate_sticker(clean_pcb_name("MTV.048.647556 {Mati znowu będzie się tłumaczył klientowi}"), "5017", "525")
+# generate_sticker(clean_pcb_name("MTV.048.647556 {Mati znowu będzie się tłumaczył klientowi}"), "5017", "525")
+
