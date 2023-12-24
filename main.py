@@ -13,9 +13,14 @@ PCB_NAME_FILE_PATH = r"C:\Development\Python\naklejki_pcb\pcb_name.txt"
 # Nazwa drukarki
 PRINTER_NAME = "Godex DT2x"
 
-def clean_pcb_name(text):
-    """ Funkcja używająca wyrażenia regularnego do znalezienia i usunięcia treści w nawiasach { } """
-    cleaned_text = re.sub(r'\{.*?\}', '', text)
+def clean_pcb_name(text, kod):
+    """ Funkcja używająca wyrażenia regularnego do znalezienia i usunięcia treści w nawiasach { } jeżeli PCB jest na sprzedaż. 
+    Jeżeli Montaż - zwraca kod Nanotech zamiast nazwy PCB"""
+    pattern = r'\{wysyłamy na montaż\}'
+    if re.search(pattern, text):
+        cleaned_text = kod
+    else:
+        cleaned_text = re.sub(r'\{.*?\}', '', text)
     return cleaned_text
 
 def clean_order_num(text):
@@ -120,21 +125,22 @@ def print_sticker(sticker_path, printer_name):
 def get_data_from_file():
     """ Funkcja pobierająca dane z pliku .txt i zwracająca 'nazwę pcb' """
 
-    with open(PCB_NAME_FILE_PATH, 'r') as file:
+    with open(PCB_NAME_FILE_PATH, 'r', encoding='utf-8') as file:
         lines = file.readlines()
-        pcb_name = lines[0].strip()
+        pcb_name = lines[0].strip() 
         order_num = lines[1].strip()
+        kod = lines[2].strip()
 
-    return pcb_name, order_num
+    return pcb_name, order_num, kod
 
 # Główna pętla programu
-pcb_name, order_num = get_data_from_file()
+pcb_name, order_num, kod = get_data_from_file()
 print(f"Drukowanie naklejek dla PCB: '{pcb_name}'")
 qty = input("Podaj ilości dla każdej naklejki oddzielone spacjami np. '25 25 25 15 50 40'\n")
 for _ in qty.split():
-    sticker_path = generate_sticker(pcb_name=clean_pcb_name(pcb_name), order_num=clean_order_num(order_num), qty=_)
-    print_sticker(sticker_path=sticker_path, printer_name=PRINTER_NAME)
+    sticker_path = generate_sticker(pcb_name=clean_pcb_name(pcb_name, kod), order_num=clean_order_num(order_num), qty=_)
+    #print_sticker(sticker_path=sticker_path, printer_name=PRINTER_NAME)
 
 
-# generate_sticker(clean_pcb_name("MTV.048.647556 {Mati znowu będzie się tłumaczył klientowi}"), "5017", "525")
+# generate_sticker(clean_pcb_name("MTV.048  .647556 {Mati znowu będzie się tłumaczył klientowi}"), "5017", "525")
 
