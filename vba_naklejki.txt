@@ -1,0 +1,41 @@
+Sub DrukujNaklejkePCB()
+    ' Sprawdź, czy jakikolwiek wiersz jest zaznaczony
+    If Not Selection Is Nothing Then
+        ' Pobierz wartości z zaznaczonego wiersza
+        Dim wartoscG As Variant
+        Dim wartoscC As Variant
+        Dim wartoscF As Variant
+        
+        wartoscG = Selection.Cells(1, 1).Value ' Kolumna G
+        wartoscC = Selection.Cells(1, -3).Value ' Kolumna C
+        wartoscF = Selection.Cells(1, 0).Value ' Kolumna F
+        
+        ' Utwórz i otwórz plik tekstowy do zapisu (zmień ścieżkę według własnych potrzeb)
+        Dim sciezkaDoPliku As String
+        sciezkaDoPliku = "C:\Users\jan.sleszynski\Desktop\JJ\naklejki_pcb\pcb_name.txt"
+        Dim numerPliku As Integer
+        numerPliku = FreeFile
+        Open sciezkaDoPliku For Output As numerPliku
+        
+        ' Zapisz wartości do pliku tekstowego
+        Print #numerPliku, wartoscG
+        Print #numerPliku, wartoscC
+        Print #numerPliku, wartoscF
+        Close numerPliku
+        
+        ' Zdefiniuj ścieżkę do skryptu Pythona i interpretera Pythona (zmień według własnych potrzeb)
+        Dim sciezkaDoSkryptu As String
+        sciezkaDoSkryptu = "C:\Users\jan.sleszynski\Desktop\JJ\naklejki_pcb\main2.py"
+        Dim sciezkaDoInterpretera As String
+        sciezkaDoInterpretera = "D:\Python\python.exe"
+        
+        ' Uruchom skrypt Pythona
+        Dim objShell As Object
+        Set objShell = VBA.CreateObject("Wscript.Shell")
+        objShell.Run """" & sciezkaDoInterpretera & """ """ & sciezkaDoSkryptu & """", 1, True
+    Else
+        ' Jeśli żaden wiersz nie jest zaznaczony, wyświetl odpowiedni komunikat
+        MsgBox "Nie zaznaczono żadnego wiersza."
+    End If
+End Sub
+
